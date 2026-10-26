@@ -1,4 +1,4 @@
-# Fitness-News---Studii-i-Descoperiri-despre-Fitness
+# Fitness-News Studii si Descoperiri despre Fitness
 Despre Proiect
 Aceasta este o miniaplicație Android dezvoltată ca proiect de semestru la disciplina Calcul Mobil. Obiectivul este parcurgerea unui ciclu de dezvoltare ce include planificarea, implementarea incrementală și lucrul în echipă pe un repository comun. Funcționalitățile principale, conform cerințelor, includ afișarea unei liste de elemente (știri/studii), navigarea către un ecran de detaliu, salvarea de date pe dispozitiv și preluarea de date dintr-un API extern. Aplicația este proiectată să ruleze pe un emulator sau pe un dispozitiv fizic.
 De ce am ales tema
