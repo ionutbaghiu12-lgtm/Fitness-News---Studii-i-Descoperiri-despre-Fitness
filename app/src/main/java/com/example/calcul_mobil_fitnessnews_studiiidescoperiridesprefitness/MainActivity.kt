@@ -6,42 +6,118 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.api.FitnessApiService
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.db.AppDatabase
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.repository.ArticleRepository
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.ui.NewsViewModel
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.ui.navigation.FitnessNavGraph
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.ui.navigation.Screen
 import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.ui.theme.FitnessNewsTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val database = AppDatabase.getInstance(applicationContext)
+        val apiService = FitnessApiService.create()
+        val repository = ArticleRepository(apiService, database.favoriteDao())
+
         setContent {
             FitnessNewsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                FitnessAppMain(repository = repository)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun FitnessAppMain(repository: ArticleRepository) {
+    val navController = rememberNavController()
+    val viewModel: NewsViewModel = viewModel(
+        factory = NewsViewModel.Factory(repository)
     )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FitnessNewsTheme {
-        Greeting("Android")
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val isDetailScreen = currentRoute?.startsWith("detail") == true
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            if (!isDetailScreen) {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = if (currentRoute == Screen.Favorites.route) "Studii Salvate" else "Fitness News & Studii",
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors()
+                )
+            }
+        },
+        bottomBar = {
+            if (!isDetailScreen) {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = currentRoute == Screen.Feed.route || currentRoute == null,
+                        onClick = {
+                            navController.navigate(Screen.Feed.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(Icons.AutoMirrored.Filled.Article, contentDescription = "Știri & Studii") },
+                        label = { Text("Știri & Studii") }
+                    )
+
+                    NavigationBarItem(
+                        selected = currentRoute == Screen.Favorites.route,
+                        onClick = {
+                            navController.navigate(Screen.Favorites.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        icon = { Icon(Icons.Filled.Bookmark, contentDescription = "Favorite") },
+                        label = { Text("Favorite") }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        FitnessNavGraph(
+            navController = navController,
+            viewModel = viewModel,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
