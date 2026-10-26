@@ -1,12 +1,9 @@
 package com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.db
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.model.Article
 
-@Entity(tableName = "favorite_articles")
 data class FavoriteEntity(
-    @PrimaryKey val id: Int,
+    val id: Int,
     val title: String,
     val summary: String,
     val content: String,

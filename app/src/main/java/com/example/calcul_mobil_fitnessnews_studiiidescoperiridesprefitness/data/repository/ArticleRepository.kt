@@ -15,7 +15,9 @@ class ArticleRepository(
         entities.map { it.toArticle() }
     }
 
-    val favoriteIds: Flow<List<Int>> = favoriteDao.getFavoriteIds()
+    val favoriteIds: Flow<List<Int>> = favoriteDao.getAllFavorites().map { entities ->
+        entities.map { it.id }
+    }
 
     suspend fun fetchArticles(): List<Article> {
         return try {
@@ -26,7 +28,7 @@ class ArticleRepository(
         }
     }
 
-    suspend fun toggleBookmark(article: Article) {
+    fun toggleBookmark(article: Article) {
         if (article.isBookmarked) {
             favoriteDao.deleteFavoriteById(article.id)
         } else {

@@ -26,7 +26,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.api.FitnessApiService
-import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.db.AppDatabase
+import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.db.FavoriteDao
 import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.data.repository.ArticleRepository
 import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.ui.NewsViewModel
 import com.example.calcul_mobil_fitnessnews_studiiidescoperiridesprefitness.ui.navigation.FitnessNavGraph
@@ -38,9 +38,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val database = AppDatabase.getInstance(applicationContext)
+        val favoriteDao = FavoriteDao(applicationContext)
         val apiService = FitnessApiService.create()
-        val repository = ArticleRepository(apiService, database.favoriteDao())
+        val repository = ArticleRepository(apiService, favoriteDao)
 
         setContent {
             FitnessNewsTheme {
